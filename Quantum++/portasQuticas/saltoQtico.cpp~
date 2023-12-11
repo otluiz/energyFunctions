@@ -1,0 +1,77 @@
+#include <iostream>
+#include <cmath>
+#include <complex>
+#include <vector>
+#include <Eigen/Dense>
+#include "QuantumGates.h"
+
+using namespace std;
+using namespace Eigen;
+
+struct QuantumSystem {
+    int numParticles;
+    double spaceLimit;
+    int numIterations;
+    double deltaTime;
+    double thresholdEnergy;
+    double thresholdProbability;
+    complex<double> transitionMatrix[2][2];
+
+    QuantumSystem() : numParticles(100), spaceLimit(10.0), numIterations(1000),
+                      deltaTime(0.01), thresholdEnergy(1e-5), thresholdProbability(0.9) {
+        // Inicialize a matriz de transição conforme necessário
+        transitionMatrix[0][0] = 1.0;
+        transitionMatrix[0][1] = 0.0;
+        transitionMatrix[1][0] = 0.0;
+        transitionMatrix[1][1] = 1.0;
+    }
+};
+
+struct Particle {
+    double position;
+    double time;
+    complex<double> state0;
+    complex<double> state1;
+    QuantumSystem quantumSystem;
+
+    Particle() : position(0.0), time(0.0), state0(1.0, 0.0), state1(0.0, 0.0), quantumSystem() {}
+};
+
+Matrix2cd getQuantumGate(const string& gateName) {
+    if (gateName == "Hadamard") {
+        return QuantumGates::hadamardGate();
+    } else if (gateName == "PauliX") {
+        return QuantumGates::pauliXGate();
+    }
+    // Adicione mais casos para outras portas lógicas conforme necessário
+    // Retorne uma matriz de identidade como padrão se o nome da porta não for reconhecido
+    return Matrix2cd::Identity();
+}
+
+void applyQuantumGate(Particle& particle, const Matrix2cd& quantumGate) {
+    complex<double> newState0 = quantumGate(0, 0) * particle.state0 + quantumGate(0, 1) * particle.state1;
+    complex<double> newState1 = quantumGate(1, 0) * particle.state0 + quantumGate(1, 1) * particle.state1;
+    particle.state0 = newState0;
+    particle.state1 = newState1;
+}
+
+void applyQuantumOperation(Particle& particle, const string& gateName) {
+    Matrix2cd quantumGate = getQuantumGate(gateName);
+    applyQuantumGate(particle, quantumGate);
+}
+
+int main() {
+    Particle particle;
+
+    // Aplicar uma operação quântica usando a porta lógica de Hadamard
+    applyQuantumOperation(particle, "Hadamard");
+
+    // Aplicar uma operação quântica usando a porta lógica X (PauliX)
+    applyQuantumOperation(particle, "PauliX");
+
+    // Verificar os coeficientes de superposição após as operações
+    cout << "Coeficiente de superposição para |0⟩: " << particle.state0 << endl;
+    cout << "Coeficiente de superposição para |1⟩: " << particle.state1 << endl;
+
+    return 0;
+}

@@ -1,0 +1,20 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
+\begin{document}
+
+\begin{figure}[h!]
+\centering
+\caption{Matriz de Slater e seu Determinante}
+\label{fig:slaterMatrix}
+\[
+\begin{bmatrix}
+% Sua matriz aqui
+\end{bmatrix}
+\]
+\textbf{Determinante:} -0.35168
+\end{figure}
+
+\end{document}
+

@@ -1,0 +1,17 @@
+CC = g++
+CFLAGS = -std=c++11 -I/usr/include/eigen3/Eigen/ # Substitua /path/to/eigen pelo caminho para a biblioteca Eigen
+LDFLAGS = -lm
+
+all: saltoQtico
+
+main: saltoQtico.o quantumGates.o
+	$(CC) $(CFLAGS) -o saltoQtico saltoQtico.o quantumGates.o $(LDFLAGS)
+
+main.o: saltoQtico.cpp
+	$(CC) $(CFLAGS) -c saltoQtico.cpp
+
+QuantumGates.o: quantumGates.cpp quantumGates.h
+	$(CC) $(CFLAGS) -c QuantumGates.cpp
+
+clean:
+	rm -f saltoQtico saltoQtico.o quantumGates.o

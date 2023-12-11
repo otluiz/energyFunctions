@@ -1,0 +1,109 @@
+#include <QuuantumGates.h>
+#include <iostream>
+#include <cmath>
+#include <complex>
+#include <vector>
+#include <Eigen/Dense> // Biblioteca para operações com matrizes e vetores
+#include <unsupported/Eigen/MatrixFunctions> // Biblioteca para funções exponenciais de matrizes
+
+using namespace std;
+using namespace Eigen;
+using namespace QuantumGates;
+
+const double PI = 3.14159265358979323846;
+
+struct QuantumSystem {
+    int numParticles;
+    double spaceLimit;
+    int numIterations;
+    double deltaTime;
+    double thresholdEnergy;
+    double thresholdProbability;
+    complex<double> transitionMatrix[2][2];
+
+    QuantumSystem() : numParticles(100), spaceLimit(10.0), numIterations(1000),
+                      deltaTime(0.01), thresholdEnergy(1e-5), thresholdProbability(0.9) {
+        // Inicialize a matriz de transição conforme necessário
+        transitionMatrix[0][0] = 1.0;
+        transitionMatrix[0][1] = 0.0;
+        transitionMatrix[1][0] = 0.0;
+        transitionMatrix[1][1] = 1.0;
+    }
+};
+
+struct Particle {
+    double position;
+    double time;
+    QuantumSystem quantumSystem; // Estado quântico da partícula
+
+    Particle() : position(0.0), time(0.0), quantumSystem() {}
+};
+
+
+// Função para calcular a probabilidade de uma partícula quântica estar em uma posição específica
+double probability(const Particle& particle) {
+    // Obtenha os coeficientes da matriz de transição do sistema quântico da partícula
+    complex<double> coefficient00 = particle.quantumSystem.transitionMatrix[0][0];
+    complex<double> coefficient01 = particle.quantumSystem.transitionMatrix[0][1];
+
+    // Calcule o módulo do quadrado dos coeficientes para obter as probabilidades
+    double probability00 = pow(abs(coefficient00), 2);
+    double probability01 = pow(abs(coefficient01), 2);
+
+    // A probabilidade total é a soma das probabilidades dos estados
+    double totalProbability = probability00 + probability01;
+
+    return totalProbability;
+}
+
+
+bool isOptimal(const Particle& particle, double energyThreshold, double probabilityThreshold) {
+    // Verificando tanto a energia quanto a probabilidade para determinar se a partícula atingiu a solução ótima
+    // Usando os limiares energyThreshold e probabilityThreshold
+
+    // Verifica se a energia é menor que o limiar de energia
+    bool isEnergyOptimal = particle.energy < energyThreshold;
+
+    // Verifica se a probabilidade quântica é maior que o limiar de probabilidade
+    double particleProbability = probability(particle);
+    bool isProbabilityOptimal = particleProbability >= probabilityThreshold;
+
+    // A partícula atinge a solução ótima se a energia e a probabilidade estiverem dentro dos limiares
+    return isEnergyOptimal && isProbabilityOptimal;
+}
+
+
+double vonNeumannEntropy(const Eigen::Matrix2cd& densityMatrix) {
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix2cd> solver(densityMatrix);
+    Eigen::VectorXd eigenvalues = solver.eigenvalues().real();
+    
+    // Calcula a entropia de von Neumann
+    double entropy = 0.0;
+    for (int i = 0; i < eigenvalues.size(); ++i) {
+        if (eigenvalues(i) > 0.0) {
+            entropy -= eigenvalues(i) * log2(eigenvalues(i));
+        }
+    }
+    
+    return entropy;
+}
+
+void applyQuantumJump(Particle& particle) {
+    // Calcular a matriz de densidade do sistema quântico da partícula
+    Eigen::Matrix2cd densityMatrix;
+    densityMatrix << particle.quantumSystem.transitionMatrix[0][0], particle.quantumSystem.transitionMatrix[0][1],
+                     particle.quantumSystem.transitionMatrix[1][0], particle.quantumSystem.transitionMatrix[1][1];
+                     
+    // Calcular a entropia de von Neumann da matriz de densidade
+    double entropy = vonNeumannEntropy(densityMatrix);
+    
+    // Condição para o salto quântico (exemplo: entropia menor que um certo limite)
+    double jumpThreshold = 0.5;
+    
+    // Se a entropia for menor que o limiar, ocorre o salto quântico
+    if (entropy < jumpThreshold) {
+        // Implemente aqui as mudanças necessárias no estado quântico da partícula após o salto
+        // ...
+    }
+}
+

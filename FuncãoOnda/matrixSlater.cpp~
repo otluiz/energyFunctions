@@ -1,0 +1,128 @@
+#include <iostream>
+#include <Eigen/Dense>
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip> // Para std::fixed e std::setprecision
+#include <fstream> // Para salvar em arquivos
+#include <complex>
+
+using namespace std;
+//using complex = complex<double>;
+
+
+// Função de onda com o potencial de Podolsky
+double phi(double x, double lambda, double a) {
+    // Parâmetros constantes
+    const complex i(0, 1); // Unidade imaginária
+    const double alpha = 1.0; // Parâmetro variacional, pode ser ajustado
+
+    // Calculando os termos da função de onda
+    complex term1 = std::exp(i * x); // Primeiro termo
+    complex term2 = std::exp(2.0 * i - 5.0 * a) * (std::exp(4.0 * a) - std::exp(8.0 * i));
+    complex term3 = x * (a - 2.0 * i);
+    complex term4 = 1.0 + lambda * (std::exp(i - a) - std::exp(5.0 * i - a)); // Incluir a função Ei adequada
+
+    // Retorna a função de onda
+    return term1 + (lambda * term2 / term3) / term4;
+}
+
+// // Definição de uma função de onda de um único elétron (por exemplo, uma função de onda de orbital atômico)
+// double phi(int n, double x) {
+//     // Para simplificar, usamos uma função de onda gaussiana modificada com um parâmetro 'n'
+//     const double alpha = 1.0; // Parâmetro variacional
+//     return exp(-alpha * x * x) * std::sin(n * M_PI * x) * std::cos(n * M_PI * x);
+// }
+
+
+    // // Calcular e imprimir a função de onda para um valor de x
+    // double x = 1.0; // Exemplo de valor
+    // complex result = phi(x, lambda, a);
+    // std::cout << "phi(" << x << ") = " << result << std::endl;
+
+
+// Constrói a matriz de Slater para um sistema de N partículas
+Eigen::MatrixXcd buildSlaterMatrix(const std::vector<double>& positions, double lambda, double a) {
+    int N = positions.size();
+    Eigen::MatrixXcd slaterMatrix(N, N); // Matriz de números complexos
+
+    for (int n = 0; n < N; ++n) {
+        for (int j = 0; j < N; ++j) {
+            slaterMatrix(n, j) = phi(n + 1, positions[j], lambda, a);
+        }
+    }
+    return slaterMatrix;
+}
+
+
+
+void printMatrixToLatex(const Eigen::MatrixXd& matrix, const std::string& filename, double det) {
+    std::ofstream file(filename);
+    
+    if (file.is_open()) {
+        file << "\\begin{figure}[h!]\n";
+        file << "\\centering\n";
+        file << "\\caption{Matriz de Slater e seu Determinante}\n";
+        file << "\\label{fig:slaterMatrix}\n";
+        file << "\\[\\begin{bmatrix}\n";
+        file << std::fixed << std::setprecision(3);
+
+        for (int i = 0; i < matrix.rows(); ++i) {
+            for (int j = 0; j < matrix.cols(); ++j) {
+                file << matrix(i, j);
+                if (j < matrix.cols() - 1) file << " & "; // Separador de colunas no LaTeX
+            }
+            file << " \\\\" << std::endl; // Final de linha no LaTeX
+        }
+
+        file << "\\end{bmatrix}\\]\n";
+        file << "\\textbf{Determinante:} " << std::setprecision(5) << det << "\n";
+        file << "\\end{figure}\n";
+    }
+
+    file.close();
+}
+
+
+int main() {
+
+  	// Definir parâmetros e posicões das partículas
+    vector<double> positions(N, 0.0)
+    double lambda = -1.0; // Exemplo de valor para lambda
+    double a = 1.0; // Exemplo de valor para a
+    const int N = 30; // Número de partículas
+    ;
+    
+    // Inicializar o gerador de números aleatórios
+    srand(std::time(0));
+
+    // Gerar posições aleatórias para cada partícula
+    for (int i = 0; i < N; ++i) {
+        positions[i] = static_cast<double>(rand()) / RAND_MAX; // Posições aleatórias entre 0 e 1
+    }
+
+    // Construir a matriz de Slater
+    Eigen::MatrixXcd slaterMatrix = buildSlaterMatrix(positions, lambda, a);
+
+	// Imprimir a matriz de Slater
+	cout << "Matriz de Slater:" << endl;
+	cout << fixed << setprecision(3); // Limita a 5 casas decimais, por exemplo
+	for (int i = 0; i < slaterMatrix.rows(); ++i) {
+	  for (int j = 0; j < slaterMatrix.cols(); ++j) {
+        cout << slaterMatrix(i, j) << "\t";
+	  }
+	  cout << endl; // Nova linha após cada linha da matriz
+	}
+    
+    // Calcular o determinante da matriz de Slater
+    double det = slaterMatrix.determinant();
+	
+    // Imprimir o resultado
+    cout << "Determinante da matriz de Slater para " << N << " partículas: " << det << endl;
+
+	// Imprimir o Latex para um arquivo .tex
+	printMatrixToLatex(slaterMatrix, "slaterMatrix.tex", det);
+    
+    return 0;
+}

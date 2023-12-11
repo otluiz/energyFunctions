@@ -1,0 +1,17 @@
+#include "QuantumGates.h"
+
+Matrix2cd QuantumGates::hadamardGate() {
+    Matrix2cd gate;
+    gate << 1.0 / sqrt(2), 1.0 / sqrt(2),
+            1.0 / sqrt(2), -1.0 / sqrt(2);
+    return gate;
+}
+
+Matrix2cd QuantumGates::pauliXGate() {
+    Matrix2cd gate;
+    gate << 0, 1,
+            1, 0;
+    return gate;
+}
+
+// Implemente mais funções para outras portas lógicas conforme necessário

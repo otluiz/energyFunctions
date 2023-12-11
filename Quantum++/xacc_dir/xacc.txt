@@ -1,0 +1,14 @@
+$ git clone https://github.com/eclipse/xacc
+$ cd xacc && mkdir build && cd build
+[default cmake call]
+$ cmake ..
+[with tests and examples]
+$ cmake .. -DXACC_BUILD_EXAMPLES=TRUE -DXACC_BUILD_TESTS=TRUE
+[now build xacc]
+$ make install
+[for a speedier build on linux]
+$ make -j$(nproc --all) install
+[and on mac os x]
+$ make -j$(sysctl -n hw.physicalcpu) install
+[if built with tests, run them]
+$ ctest --output-on-failure

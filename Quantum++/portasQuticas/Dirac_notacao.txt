@@ -1,0 +1,3 @@
+Nielsen, M. A. and Chuang, I. L., Quantum computation and quantum information,
+Cambridge University Press, 2000.
+The Exclusivity Principle and the Set of Quantum Distributions

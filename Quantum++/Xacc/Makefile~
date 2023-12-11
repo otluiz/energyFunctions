@@ -1,0 +1,18 @@
+CXX = g++
+CXXFLAGS = -Wall -Werror -std=c++11
+XACC_DIR = /home/otluix/.xacc
+
+SRC = testeXacc.cpp
+OBJ = $(SRC:.cpp=.o)
+EXECUTABLE = xaccBin
+
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ -I$(XACC_DIR)/include
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(XACC_DIR)/include
+
+clean:
+	rm -f $(OBJ) $(EXECUTABLE)
